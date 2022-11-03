@@ -1,0 +1,73 @@
+
+Class Project: Explore the biases (Gender, unintended, etc.) in the knowledge distilled model (TinyBert) of Bert and potential ways to mitigate them.
+
+UIN:
+
+
+Problem description and motivation:
+Although transformer based models like ELMO, Bert, and OpenGPT have pushed the boundaries of NLP across various language tasks, 
+they suffer from significant amount of gender and unintended biases. When these large models are knowledge distilled into smaller 
+models they propagate the biases, along with the learnings, they have into the distilled student models. As studied in [1], the 
+distilled versions have biases exacerbated in them compared to the corresponding teacher or source model. Our objective here is to 
+explore bias, for example gender bias, unintended bias, in a smaller knowledge distilled version of Bert model, called TinyBert. 
+Understand what contributes to the bias and explore the methods that could potentially help mitigate them.
+
+Dataset and Evaluation Plan:
+Following are the datasets that we might be using:
+1) Wikipedia dataset - https://huggingface.co/datasets/wikipedia#20220301en
+2) BookCorpus dataset - https://huggingface.co/datasets/bookcorpusopen
+3) IMdB sentiment dataset - http://ai.stanford.edu/~amaas/data/sentiment/
+4) Automatic Misogyny Identification dataset - https://github.com/MIND-Lab/ami2018 - this requires filling google form
+5) MLMA hate speech dataset - https://github.com/HKUST-KnowComp/MLMA_hate_speech
+6) SEAT related synthetic dataset - https://github.com/W4ngatang/sent-bias
+
+Note: Depending on the amount of time available, we may not use all the datasets mentioned above or we may even use some extra
+dataset to substantiate the analysis.
+
+Following are the metrics we use to measure gender bias and other unintended bias:
+1. SEAT : Sentence Encoder Association Test. This is a test that used to measure bias in sentence encoders.
+2. F1 scores and AUC (when testing the model backbone on a classification downstream task)
+
+Note: Depending on the kind of analysis we moving forwad, we may add other metrics for the analysis.
+
+Planned Tentative Approach (Summary):
+1) Understand and process the datasets and the evaulation criterian math(SEAT especially).
+2) Configure the TinyBert or re-train one from scratch using knowledge distillation.
+3) Understand what kind of biases it contain and quantify them.
+4) Explore bias mitigation methods onto the TinyBert and re-train it accordingly. 
+5) Finally compare the performance of debiased TinyBert model with non-debiased TinyBert model.
+
+Refernces:
+[1] https://aclanthology.org/2022.gebnlp-1.27.pdf
+
+
+
+https://huggingface.co/huawei-noah/TinyBERT_General_4L_312D/tree/main
+https://github.com/yinmingjun/TinyBERT
+
+Training - handle pipeline for training from scratch and explore mitigation pipelines too.
+
+https://arxiv.org/pdf/1909.10351.pdf
+https://aclanthology.org/2022.gebnlp-1.27.pdf
+https://aclanthology.org/2022.findings-acl.88.pdf
+
+
+testing - they can take off the shelf tinybert and use it to create the pipeline for testing. Referencing IMDb, SEAT, MISOGYNY and MLMN
+
+https://aclanthology.org/2022.gebnlp-1.20.pdf - IMDB related links are posted in this paper, testing related stuff is there in this paper 
+                                                that we can expolate for our project
+https://aclanthology.org/2022.gebnlp-1.27.pdf - SEAT related papers are posted in this paper, testing related stuff is there in this paper 
+                                                that we can expolate for our project
+https://aclanthology.org/2022.findings-acl.88.pdf - you can see information and link regarding the the misogyny dataset in this papar, testing related stuff is there in this paper 
+                                                that we can expolate for our project
+
+
+Notes:
+1) Abstract understanding and then splitting, in the coming week. 22 Sept - 25 sept
+2) Wrap it up becore thanks giving
+
+
+
+
+
+
