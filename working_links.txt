@@ -8,4 +8,8 @@ python pregenerate_training_data.py --train_corpus ..\data\enwiki_0.txt --bert_m
 
 Next steps:
 1) take general distilled TinyBert and try to task distill on hate speech or so - create pipeline
+------> Create a abstraction for BertForSequenceClassification in modeling.py and then create BertFineTuning
+        Script.
+------> Test the running of the pipeline.
+
 2) Then try to create analysis pipeline where we analyze the attentions

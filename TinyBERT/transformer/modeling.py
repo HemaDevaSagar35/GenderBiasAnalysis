@@ -683,7 +683,7 @@ class BertPreTrainedModel(nn.Module):
         kwargs.pop('from_tf', None)
 
         # Load config
-        config_file = os.path.join(pretrained_model_name_or_path, CONFIG_NAME)
+        config_file = os.path.join(pretrained_model_name_or_path, BERT_CONFIG_NAME)
         config = BertConfig.from_json_file(config_file)
         logger.info("Model config {}".format(config))
         # Instantiate model.
@@ -1140,3 +1140,26 @@ class TinyBertForSequenceClassification(BertPreTrainedModel):
                 tmp.append(self.fit_dense(sequence_layer))
             sequence_output = tmp
         return logits, att_output, sequence_output
+
+#### ADDING BertForSequenceClassification
+class BertForSequenceClassification(BertPreTrainedModel):
+    def __init__(self, config, num_labels):
+        super(BertForSequenceClassification, self).__init__(config)
+        self.num_labels = num_labels
+        self.bert = BertModel(config)
+        self.dropout = nn.Dropout(config.hidden_dropout_prob)
+        self.classifier = nn.Linear(config.hidden_size, num_labels)
+        self.apply(self.init_bert_weights)
+
+    def forward(self, input_ids, token_type_ids=None, attention_mask=None, labels=None):
+
+        sequence_output, att_output, pooled_output = self.bert(
+            input_ids,token_type_ids, attention_mask,
+            output_all_encoded_layers=True, output_att=True
+            )
+        
+        logits = self.classifier(torch.relu(pooled_output))
+        return logits
+                
+        
+

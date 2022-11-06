@@ -216,10 +216,11 @@ class AugmentProcessor(object):
         self.glue_dir = glue_dir
         self.task_name = task_name
         self.augment_ids = {'MRPC': [3, 4], 'MNLI': [8, 9], 'CoLA': [3], 'SST-2': [0],
-                            'STS-B': [7, 8], 'QQP': [3, 4], 'QNLI': [1, 2], 'RTE': [1, 2]}
+                            'STS-B': [7, 8], 'QQP': [3, 4], 'QNLI': [1, 2], 'RTE': [1, 2], 'MLMA' : [1]}
 
         self.filter_flags = { 'MRPC': True, 'MNLI': True, 'CoLA': False, 'SST-2': True,
-                              'STS-B': True, 'QQP': True, 'QNLI': True, 'RTE': True}
+                              'STS-B': True, 'QQP': True, 'QNLI': True, 'RTE': True,
+                              'MLMA' : True}
 
         assert self.task_name in self.augment_ids
 
@@ -278,13 +279,15 @@ def main():
         "STS-b": {"N": 30},
         "QQP": {"N": 10},
         "QNLI": {"N": 20},
-        "RTE": {"N": 30}
+        "RTE": {"N": 30},
+        "MLMA": {"N": 20}
     }
 
     if args.task_name in default_params:
         args.N = default_params[args.task_name]["N"]
 
     # Prepare data augmentor
+    print(os.getcwd())
     tokenizer = BertTokenizer.from_pretrained(args.pretrained_bert_model)
     model = BertForMaskedLM.from_pretrained(args.pretrained_bert_model)
     model.eval()

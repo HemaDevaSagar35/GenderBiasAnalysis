@@ -1,0 +1,13 @@
+#
+###
+The following are the steps to be followed while training TinyBERT for a particular task
+1---> Download the custom data required for the task
+2---> Unzip that custom data folder in data/glue_data
+3---> Once the data folder is unzipped in data/glue_data, convert the data files in the folder to .tsv files
+4---> download glove embeddings from here: https://nlp.stanford.edu/data/glove.6B.zip
+5---> unzip glove embeddings in embeddings/ directory
+6---> Incorporate respective values for the custom dataset in self.augment_ids and self.filter_flags in AugmentProcessor(object) and in default_params in main()
+6---> Then run the data augmention on the dataset using the following command:
+      python data_augmentation.py --pretrained_bert_model ${BERT_BASE_DIR}$ --glove_embs ${GLOVE_EMB}$ --glue_dir ${GLUE_DIR}$ --task_name ${TASK_NAME}$
+7---> Step will save a train_aug.tsv file in the custom data folder
+

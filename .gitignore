@@ -3,6 +3,8 @@ MLMA_hate_speech/
 data/glue_data
 TinyBERT/bert-base-uncased/bert_config
 TinyBERT/bert-base-uncased/pytorch_model.bin
+TinyBERT/embeddings/glove.6B
+TinyBERT/output_models
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]
