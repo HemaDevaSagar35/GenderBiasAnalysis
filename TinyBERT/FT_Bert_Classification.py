@@ -291,7 +291,7 @@ def main():
                         required=True,
                         help="The output directory where the model predictions and checkpoints will be written.")
     parser.add_argument("--max_seq_length",
-                        default=64,
+                        default=128,
                         type=int,
                         help="The maximum total input sequence length after WordPiece tokenization. \n"
                              "Sequences longer than this will be truncated, and sequences shorter \n"
@@ -299,8 +299,13 @@ def main():
     parser.add_argument("--do_lower_case",
                         action='store_true',
                         help="Set this flag if you are using an uncased model.")
+
+    parser.add_argument("--no_cuda",
+                        action='store_true',
+                        help="Set this flag if you are using an uncased model.")
+
     parser.add_argument("--train_batch_size",
-                        default=32,
+                        default=64,
                         type=int,
                         help="Total batch size for training.")
     parser.add_argument("--eval_batch_size",
@@ -309,11 +314,11 @@ def main():
                         help="Total batch size for eval.")
     
     parser.add_argument("--learning_rate",
-                        default=5e-5,
+                        default=2e-5,
                         type=float,
                         help="The initial learning rate for Adam.")
     parser.add_argument('--weight_decay', '--wd',
-                        default=1e-4,
+                        default=1e-2,
                         type=float,
                         metavar='W',
                         help='weight decay')
@@ -439,8 +444,8 @@ def main():
     global_step = 0
     best_dev_acc = 0.0
     output_eval_file = os.path.join(args.output_dir, "eval_results.txt")
-    # loss_func = CrossEntropyLoss(weight = torch.tensor([0.15, 1.]))
-    loss_func = CrossEntropyLoss()
+    loss_func = CrossEntropyLoss(weight = torch.tensor([8.3, 1.]))
+    #loss_func = CrossEntropyLoss()
     for epoch_ in trange(int(args.num_train_epochs), desc="Epoch"):
         tr_loss = 0.
         model.train()

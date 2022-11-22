@@ -10,4 +10,10 @@ The following are the steps to be followed while training TinyBERT for a particu
 6---> Then run the data augmention on the dataset using the following command:
       python data_augmentation.py --pretrained_bert_model ${BERT_BASE_DIR}$ --glove_embs ${GLOVE_EMB}$ --glue_dir ${GLUE_DIR}$ --task_name ${TASK_NAME}$
 7---> Step will save a train_aug.tsv file in the custom data folder
-
+8---> For finetuning Bert:
+      python FT_Bert_Classification.py --data_dir ../data/glue_data/MLMA --pre_trained_bert bert-base-uncased 
+                                       --task_name MLMA --do_lower_case --learning_rate 0.01 --output_dir output_models
+   
+9---> Hyperparameters used for finetunine are : sequence length = 120 with right padding, batch_size=64, 
+      learning_rate = 0.00002, wegith decay = 0.01, warmup = 10%, epoch = 30 and epoch 5 early stopping. For
+      MLMA used weighted cross-entropy classification loss.
