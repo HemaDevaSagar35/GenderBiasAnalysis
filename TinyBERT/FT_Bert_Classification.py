@@ -122,6 +122,11 @@ class MLMAProcessor(DataProcessor):
         """See base class."""
         return self._create_examples(
             self._read_tsv(os.path.join(data_dir, "dev.tsv")), "dev")
+    
+    def get_test_examples(self, data_dir):
+        """See base class."""
+        return self._create_examples(
+            self._read_tsv(os.path.join(data_dir, "test.tsv")), "dev")
 
     def get_labels(self):
         """See base class. This should be changed according to the task"""
@@ -325,6 +330,11 @@ def main():
     parser.add_argument("--no_cuda",
                         action='store_true',
                         help="Set this flag if you are using an uncased model.")
+    
+    
+    parser.add_argument("--eval_mode",
+                        action='store_true',
+                        help="Set this flag if you are using an uncased model.")
 
     parser.add_argument("--train_batch_size",
                         default=64,
@@ -384,6 +394,33 @@ def main():
                         level=logging.INFO)
 
     logger.info("device: {} n_gpu: {}".format(device, n_gpu))
+    if args.eval_mode:
+        ### be sure to give the updated model files directory for this block to work properly
+        processor = processors[args.task_name]()
+        label_list = processor.get_labels()
+        num_labels = len(label_list)
+        tokenizer = BertTokenizer.from_pretrained(args.pre_trained_bert, do_lower_case=args.do_lower_case)
+
+        eval_examples = processor.get_test_examples(args.data_dir)
+        eval_features = convert_examples_to_features(eval_examples, label_list, args.max_seq_length, tokenizer)
+        eval_data, eval_labels = get_tensor_data(eval_features)
+        eval_sampler = SequentialSampler(eval_data)
+        eval_dataloader = DataLoader(eval_data, sampler=eval_sampler, batch_size=args.eval_batch_size)
+
+        model = BertForSequenceClassification.from_pretrained(args.pre_trained_bert, num_labels=num_labels)
+        model.to(device)
+
+        model.eval()
+        result = do_eval(model, args.task_name, eval_dataloader,
+                                 device, eval_labels, num_labels)
+        
+        output_eval_file = os.path.join(args.output_dir, "test_results.txt")
+        result_to_file("###### epoch {} results are \n".format(epoch_), output_eval_file)
+        result_to_file(result, output_eval_file)
+        return
+
+        
+
 
     # Prepare seed
     random.seed(args.seed)
