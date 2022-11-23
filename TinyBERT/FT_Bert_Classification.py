@@ -34,6 +34,23 @@ fh.setFormatter(logging.Formatter(log_format))
 logging.getLogger().addHandler(fh)
 logger = logging.getLogger()
 
+class EarlyStopper:
+    def __init__(self, patience=5, min_delta=0):
+        self.patience = patience
+        self.min_delta = min_delta
+        self.counter = 0
+        self.min_validation_loss = np.inf
+
+    def early_stop(self, validation_loss):
+        if validation_loss < self.min_validation_loss:
+            self.min_validation_loss = validation_loss
+            self.counter = 0
+        elif validation_loss > (self.min_validation_loss + self.min_delta):
+            self.counter += 1
+            if self.counter >= self.patience:
+                return True
+        return False
+
 class InputExample(object):
     """A single training/test example for simple sequence classification."""
 
@@ -123,6 +140,8 @@ class MLMAProcessor(DataProcessor):
             examples.append(
                 InputExample(guid=guid, text_a=text_a, label=label))
         return examples
+
+
 
 def convert_examples_to_features(examples, label_list, max_seq_length,
                                  tokenizer):
@@ -263,6 +282,9 @@ def get_tensor_data(features):
 def result_to_file(result, file_name):
     with open(file_name, "a") as writer:
         logger.info("***** Eval results *****")
+        if type(result) == str:
+            writer.write("%s\n" % (result))
+            return
         for key in sorted(result.keys()):
             logger.info("  %s = %s", key, str(result[key]))
             writer.write("%s = %s\n" % (key, str(result[key])))
@@ -444,7 +466,8 @@ def main():
     global_step = 0
     best_dev_acc = 0.0
     output_eval_file = os.path.join(args.output_dir, "eval_results.txt")
-    loss_func = CrossEntropyLoss(weight = torch.tensor([8.3, 1.]))
+    loss_func = CrossEntropyLoss(weight = torch.tensor([8.3, 1.]).to(device))
+    early_stopper = EarlyStopper()
     #loss_func = CrossEntropyLoss()
     for epoch_ in trange(int(args.num_train_epochs), desc="Epoch"):
         tr_loss = 0.
@@ -457,6 +480,8 @@ def main():
                 continue
             cls_loss = 0.
             logits = model(input_ids, segment_ids, input_mask)
+            print(logits.is_cuda)
+            print(label_ids.is_cuda)
             loss = loss_func(logits.view(-1, num_labels), label_ids.view(-1))
 
             if n_gpu > 1:
@@ -473,43 +498,67 @@ def main():
                 optimizer.step()
                 optimizer.zero_grad()
                 global_step += 1
-            if (global_step + 1) % args.eval_step == 0:
-                logger.info("***** Running evaluation *****")
-                logger.info("  Process = {} iter {} step".format(epoch_, global_step))
-                logger.info("  Num examples = %d", len(eval_examples))
-                logger.info("  Batch size = %d", args.eval_batch_size)
+            # if (global_step + 1) % args.eval_step == 0:
+            #     logger.info("***** Running evaluation *****")
+            #     logger.info("  Process = {} iter {} step".format(epoch_, global_step))
+            #     logger.info("  Num examples = %d", len(eval_examples))
+            #     logger.info("  Batch size = %d", args.eval_batch_size)
 
-                model.eval()
-                loss = tr_loss / (step + 1)
+            #     model.eval()
+            #     loss = tr_loss / (step + 1)
 
-                result = do_eval(model, args.task_name, eval_dataloader,
-                                 device, eval_labels, num_labels)
+            #     result = do_eval(model, args.task_name, eval_dataloader,
+            #                      device, eval_labels, num_labels)
                 
-                result['global_step'] = global_step
-                result['loss'] = loss
-                result_to_file(result, output_eval_file)
+            #     result['global_step'] = global_step
+            #     result['loss'] = loss
+            #     result_to_file(result, output_eval_file)
 
-                save_model = False
-                if result['acc'] > best_dev_acc:
-                    best_dev_acc = result['acc']
-                    save_model = True
+            #     save_model = False
+            #     if result['acc'] > best_dev_acc:
+            #         best_dev_acc = result['acc']
+            #         save_model = True
 
-                if save_model:
-                    logger.info("***** Save model *****")
+            #     if save_model:
+            #         logger.info("***** Save model *****")
 
-                    model_to_save = model.module if hasattr(model, 'module') else model
+            #         model_to_save = model.module if hasattr(model, 'module') else model
 
-                    model_name = WEIGHTS_NAME
-                    # if not args.pred_distill:
-                    #     model_name = "step_{}_{}".format(global_step, WEIGHTS_NAME)
-                    output_model_file = os.path.join(args.output_dir, model_name)
-                    output_config_file = os.path.join(args.output_dir, CONFIG_NAME)
+            #         model_name = WEIGHTS_NAME
+            #         # if not args.pred_distill:
+            #         #     model_name = "step_{}_{}".format(global_step, WEIGHTS_NAME)
+            #         output_model_file = os.path.join(args.output_dir, model_name)
+            #         output_config_file = os.path.join(args.output_dir, CONFIG_NAME)
 
-                    torch.save(model_to_save.state_dict(), output_model_file)
-                    model_to_save.config.to_json_file(output_config_file)
-                    tokenizer.save_vocabulary(args.output_dir)
+            #         torch.save(model_to_save.state_dict(), output_model_file)
+            #         model_to_save.config.to_json_file(output_config_file)
+            #         tokenizer.save_vocabulary(args.output_dir)
 
-                model.train()
+            #     model.train()
+
+        ##### evluating after epoch
+        model.eval()
+        result = do_eval(model, args.task_name, eval_dataloader,
+                                 device, eval_labels, num_labels)
+        state = early_stopper.early_stop(result['eval_loss'])
+        result_to_file("###### epoch {} results are \n".format(epoch_), output_eval_file)
+        result_to_file(result, output_eval_file)
+        if state:
+            break
+        if early_stopper.counter == 0:
+            logger.info("***** Saving best model till now *****")
+            result_to_file("###### saving the model at epoch {} \n".format(epoch_), output_eval_file)
+            model_to_save = model.module if hasattr(model, 'module') else model
+            model_name = WEIGHTS_NAME
+            output_model_file = os.path.join(args.output_dir, model_name)
+            output_config_file = os.path.join(args.output_dir, CONFIG_NAME)
+            torch.save(model_to_save.state_dict(), output_model_file)
+            model_to_save.config.to_json_file(output_config_file)
+            tokenizer.save_vocabulary(args.output_dir)
+            
+        model.train()
+
+
 
 
 if __name__ == "__main__":
