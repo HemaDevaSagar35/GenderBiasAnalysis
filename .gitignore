@@ -5,6 +5,7 @@ TinyBERT/bert-base-uncased/bert_config
 TinyBERT/bert-base-uncased/pytorch_model.bin
 TinyBERT/embeddings/glove.6B
 TinyBERT/output_models
+TinyBERT/tinybert-gkd-model
 # Byte-compiled / optimized / DLL files
 __pycache__/
 *.py[cod]

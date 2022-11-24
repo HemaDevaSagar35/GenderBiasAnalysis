@@ -35,7 +35,7 @@ logging.getLogger().addHandler(fh)
 logger = logging.getLogger()
 
 class EarlyStopper:
-    def __init__(self, patience=5, min_delta=0):
+    def __init__(self, patience=15, min_delta=0):
         self.patience = patience
         self.min_delta = min_delta
         self.counter = 0
@@ -252,7 +252,7 @@ def do_eval(model, task_name, eval_dataloader,
             logits = model(input_ids, segment_ids, input_mask)
 
         # create eval loss and other metric required by the task
-        loss_fct = CrossEntropyLoss()
+        loss_fct = CrossEntropyLoss(weight = torch.tensor([8.3, 1.]).to(device))
         tmp_eval_loss = loss_fct(logits.view(-1, num_labels), label_ids.view(-1))
         
         eval_loss += tmp_eval_loss.mean().item()
@@ -415,7 +415,7 @@ def main():
                                  device, eval_labels, num_labels)
         
         output_eval_file = os.path.join(args.output_dir, "test_results.txt")
-        result_to_file("###### epoch {} results are \n".format(epoch_), output_eval_file)
+        result_to_file("###### test results are \n", output_eval_file)
         result_to_file(result, output_eval_file)
         return
 
@@ -517,8 +517,8 @@ def main():
                 continue
             cls_loss = 0.
             logits = model(input_ids, segment_ids, input_mask)
-            print(logits.is_cuda)
-            print(label_ids.is_cuda)
+            #print(logits.is_cuda)
+            #print(label_ids.is_cuda)
             loss = loss_func(logits.view(-1, num_labels), label_ids.view(-1))
 
             if n_gpu > 1:

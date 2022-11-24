@@ -31,7 +31,8 @@ from tqdm import tqdm, trange
 
 from torch.nn import CrossEntropyLoss, MSELoss
 from scipy.stats import pearsonr, spearmanr
-from sklearn.metrics import matthews_corrcoef, f1_score
+from sklearn.metrics import matthews_corrcoef, f1_score, recall_score, precision_score, confusion_matrix
+#from sklearn.metrics import matthews_corrcoef, f1_score, 
 
 from transformer.modeling import TinyBertForSequenceClassification
 from transformer.tokenization import BertTokenizer
@@ -445,9 +446,48 @@ class WnliProcessor(DataProcessor):
                 InputExample(guid=guid, text_a=text_a, text_b=text_b, label=label))
         return examples
 
+class MLMAProcessor(DataProcessor):
+    """Processor for any binary classification "given Task" data set."""
+
+    def get_train_examples(self, data_dir):
+        """See base class."""
+        return self._create_examples(
+            self._read_tsv(os.path.join(data_dir, "train.tsv")), "train")
+
+    def get_dev_examples(self, data_dir):
+        """See base class."""
+        return self._create_examples(
+            self._read_tsv(os.path.join(data_dir, "dev.tsv")), "dev")
+    
+    def get_test_examples(self, data_dir):
+        """See base class."""
+        return self._create_examples(
+            self._read_tsv(os.path.join(data_dir, "test.tsv")), "test")
+    
+    def get_aug_examples(self, data_dir):
+        return self._create_examples(
+            self._read_tsv(os.path.join(data_dir, "train_aug.tsv")), "aug")
+
+    def get_labels(self):
+        """See base class. This should be changed according to the task"""
+        return ["non-toxic", "toxic"]
+
+    def _create_examples(self, lines, set_type):
+        """Creates examples for the training and dev sets."""
+        examples = []
+        for (i, line) in enumerate(lines):
+            if i == 0:
+                continue
+            guid = "%s-%s" % (set_type, i)
+            text_a = line[1]
+            #text_b = line[4]
+            label = line[2]
+            examples.append(
+                InputExample(guid=guid, text_a=text_a, label=label))
+        return examples
 
 def convert_examples_to_features(examples, label_list, max_seq_length,
-                                 tokenizer, output_mode):
+                                 tokenizer):
     """Loads a data file into a list of `InputBatch`s."""
 
     label_map = {label: i for i, label in enumerate(label_list)}
@@ -487,12 +527,12 @@ def convert_examples_to_features(examples, label_list, max_seq_length,
         assert len(input_mask) == max_seq_length
         assert len(segment_ids) == max_seq_length
 
-        if output_mode == "classification":
-            label_id = label_map[example.label]
-        elif output_mode == "regression":
-            label_id = float(example.label)
-        else:
-            raise KeyError(output_mode)
+        # if output_mode == "classification":
+        label_id = label_map[example.label]
+        # elif output_mode == "regression":
+        #     label_id = float(example.label)
+        # else:
+        #     raise KeyError(output_mode)
 
         if ex_index < 1:
             logger.info("*** Example ***")
@@ -551,37 +591,37 @@ def pearson_and_spearman(preds, labels):
     }
 
 
-def compute_metrics(task_name, preds, labels):
-    assert len(preds) == len(labels)
-    if task_name == "cola":
-        return {"mcc": matthews_corrcoef(labels, preds)}
-    elif task_name == "sst-2":
-        return {"acc": simple_accuracy(preds, labels)}
-    elif task_name == "mrpc":
-        return acc_and_f1(preds, labels)
-    elif task_name == "sts-b":
-        return pearson_and_spearman(preds, labels)
-    elif task_name == "qqp":
-        return acc_and_f1(preds, labels)
-    elif task_name == "mnli":
-        return {"acc": simple_accuracy(preds, labels)}
-    elif task_name == "mnli-mm":
-        return {"acc": simple_accuracy(preds, labels)}
-    elif task_name == "qnli":
-        return {"acc": simple_accuracy(preds, labels)}
-    elif task_name == "rte":
-        return {"acc": simple_accuracy(preds, labels)}
-    elif task_name == "wnli":
-        return {"acc": simple_accuracy(preds, labels)}
-    else:
-        raise KeyError(task_name)
+# def compute_metrics(task_name, preds, labels):
+#     assert len(preds) == len(labels)
+#     if task_name == "cola":
+#         return {"mcc": matthews_corrcoef(labels, preds)}
+#     elif task_name == "sst-2":
+#         return {"acc": simple_accuracy(preds, labels)}
+#     elif task_name == "mrpc":
+#         return acc_and_f1(preds, labels)
+#     elif task_name == "sts-b":
+#         return pearson_and_spearman(preds, labels)
+#     elif task_name == "qqp":
+#         return acc_and_f1(preds, labels)
+#     elif task_name == "mnli":
+#         return {"acc": simple_accuracy(preds, labels)}
+#     elif task_name == "mnli-mm":
+#         return {"acc": simple_accuracy(preds, labels)}
+#     elif task_name == "qnli":
+#         return {"acc": simple_accuracy(preds, labels)}
+#     elif task_name == "rte":
+#         return {"acc": simple_accuracy(preds, labels)}
+#     elif task_name == "wnli":
+#         return {"acc": simple_accuracy(preds, labels)}
+#     else:
+#         raise KeyError(task_name)
 
 
-def get_tensor_data(output_mode, features):
-    if output_mode == "classification":
-        all_label_ids = torch.tensor([f.label_id for f in features], dtype=torch.long)
-    elif output_mode == "regression":
-        all_label_ids = torch.tensor([f.label_id for f in features], dtype=torch.float)
+def get_tensor_data(features):
+    # if output_mode == "classification":
+    all_label_ids = torch.tensor([f.label_id for f in features], dtype=torch.long)
+    # elif output_mode == "regression":
+    #     all_label_ids = torch.tensor([f.label_id for f in features], dtype=torch.float)
 
     all_seq_lengths = torch.tensor([f.seq_length for f in features], dtype=torch.long)
     all_input_ids = torch.tensor([f.input_ids for f in features], dtype=torch.long)
@@ -595,13 +635,16 @@ def get_tensor_data(output_mode, features):
 def result_to_file(result, file_name):
     with open(file_name, "a") as writer:
         logger.info("***** Eval results *****")
+        if type(result) == str:
+            writer.write("%s\n" % (result))
+            return
         for key in sorted(result.keys()):
             logger.info("  %s = %s", key, str(result[key]))
             writer.write("%s = %s\n" % (key, str(result[key])))
 
 
 def do_eval(model, task_name, eval_dataloader,
-            device, output_mode, eval_labels, num_labels):
+            device, eval_labels, num_labels):
     eval_loss = 0
     nb_eval_steps = 0
     preds = []
@@ -614,12 +657,12 @@ def do_eval(model, task_name, eval_dataloader,
             logits, _, _ = model(input_ids, segment_ids, input_mask)
 
         # create eval loss and other metric required by the task
-        if output_mode == "classification":
-            loss_fct = CrossEntropyLoss()
-            tmp_eval_loss = loss_fct(logits.view(-1, num_labels), label_ids.view(-1))
-        elif output_mode == "regression":
-            loss_fct = MSELoss()
-            tmp_eval_loss = loss_fct(logits.view(-1), label_ids.view(-1))
+        # if output_mode == "classification":
+        loss_fct = CrossEntropyLoss(weight = torch.tensor([8.3, 1.]).to(device))
+        tmp_eval_loss = loss_fct(logits.view(-1, num_labels), label_ids.view(-1))
+        # elif output_mode == "regression":
+        #     loss_fct = MSELoss()
+        #     tmp_eval_loss = loss_fct(logits.view(-1), label_ids.view(-1))
 
         eval_loss += tmp_eval_loss.mean().item()
         nb_eval_steps += 1
@@ -632,14 +675,25 @@ def do_eval(model, task_name, eval_dataloader,
     eval_loss = eval_loss / nb_eval_steps
 
     preds = preds[0]
-    if output_mode == "classification":
-        preds = np.argmax(preds, axis=1)
-    elif output_mode == "regression":
-        preds = np.squeeze(preds)
+    # if output_mode == "classification":
+    preds = np.argmax(preds, axis=1)
+    # elif output_mode == "regression":
+    #     preds = np.squeeze(preds)
     result = compute_metrics(task_name, preds, eval_labels.numpy())
     result['eval_loss'] = eval_loss
 
     return result
+
+def compute_metrics(task_name, preds, labels):
+    results = {}
+    if task_name.lower() == 'mlma':
+        results['acc'] = simple_accuracy(preds, labels)
+        results['recall'] = recall_score(labels, preds)
+        results['precision'] = precision_score(labels, preds)
+        results['f1_score'] = f1_score(labels, preds)
+        results['f1_weighted'] = f1_score(labels, preds, average = 'weighted')
+        results['confusion_matrix'] = confusion_matrix(labels, preds)
+    return results
 
 
 def main():
@@ -750,20 +804,22 @@ def main():
         "qqp": QqpProcessor,
         "qnli": QnliProcessor,
         "rte": RteProcessor,
-        "wnli": WnliProcessor
+        "wnli": WnliProcessor,
+        "mlma": MLMAProcessor
     }
 
-    output_modes = {
-        "cola": "classification",
-        "mnli": "classification",
-        "mrpc": "classification",
-        "sst-2": "classification",
-        "sts-b": "regression",
-        "qqp": "classification",
-        "qnli": "classification",
-        "rte": "classification",
-        "wnli": "classification"
-    }
+    # output_modes = {
+    #     "cola": "classification",
+    #     "mnli": "classification",
+    #     "mrpc": "classification",
+    #     "sst-2": "classification",
+    #     "sts-b": "regression",
+    #     "qqp": "classification",
+    #     "qnli": "classification",
+    #     "rte": "classification",
+    #     "wnli": "classification",
+    #     "mlma": "classification"
+    # }
 
     # intermediate distillation default parameters
     default_params = {
@@ -774,10 +830,11 @@ def main():
         "sts-b": {"num_train_epochs": 20, "max_seq_length": 128},
         "qqp": {"num_train_epochs": 5, "max_seq_length": 128},
         "qnli": {"num_train_epochs": 10, "max_seq_length": 128},
-        "rte": {"num_train_epochs": 20, "max_seq_length": 128}
+        "rte": {"num_train_epochs": 20, "max_seq_length": 128},
+        "mlma": {"num_train_epochs": 20, "max_seq_length": 128}
     }
 
-    acc_tasks = ["mnli", "mrpc", "sst-2", "qqp", "qnli", "rte"]
+    acc_tasks = ["mnli", "mrpc", "sst-2", "qqp", "qnli", "rte", 'mlma']
     corr_tasks = ["sts-b"]
     mcc_tasks = ["cola"]
 
@@ -817,7 +874,7 @@ def main():
         raise ValueError("Task not found: %s" % task_name)
 
     processor = processors[task_name]()
-    output_mode = output_modes[task_name]
+    # output_mode = output_modes[task_name]
     label_list = processor.get_labels()
     num_labels = len(label_list)
 
@@ -838,14 +895,14 @@ def main():
             len(train_examples) / args.train_batch_size / args.gradient_accumulation_steps) * args.num_train_epochs
 
         train_features = convert_examples_to_features(train_examples, label_list,
-                                                      args.max_seq_length, tokenizer, output_mode)
-        train_data, _ = get_tensor_data(output_mode, train_features)
+                                                      args.max_seq_length, tokenizer)
+        train_data, _ = get_tensor_data(train_features)
         train_sampler = RandomSampler(train_data)
         train_dataloader = DataLoader(train_data, sampler=train_sampler, batch_size=args.train_batch_size)
 
     eval_examples = processor.get_dev_examples(args.data_dir)
-    eval_features = convert_examples_to_features(eval_examples, label_list, args.max_seq_length, tokenizer, output_mode)
-    eval_data, eval_labels = get_tensor_data(output_mode, eval_features)
+    eval_features = convert_examples_to_features(eval_examples, label_list, args.max_seq_length, tokenizer)
+    eval_data, eval_labels = get_tensor_data(eval_features)
     eval_sampler = SequentialSampler(eval_data)
     eval_dataloader = DataLoader(eval_data, sampler=eval_sampler, batch_size=args.eval_batch_size)
 
@@ -862,7 +919,7 @@ def main():
 
         student_model.eval()
         result = do_eval(student_model, task_name, eval_dataloader,
-                         device, output_mode, eval_labels, num_labels)
+                         device, eval_labels, num_labels)
         logger.info("***** Eval results *****")
         for key in sorted(result.keys()):
             logger.info("  %s = %s", key, str(result[key]))
@@ -961,12 +1018,12 @@ def main():
                     tr_att_loss += att_loss.item()
                     tr_rep_loss += rep_loss.item()
                 else:
-                    if output_mode == "classification":
-                        cls_loss = soft_cross_entropy(student_logits / args.temperature,
-                                                      teacher_logits / args.temperature)
-                    elif output_mode == "regression":
-                        loss_mse = MSELoss()
-                        cls_loss = loss_mse(student_logits.view(-1), label_ids.view(-1))
+                    # if output_mode == "classification":
+                    cls_loss = soft_cross_entropy(student_logits / args.temperature,
+                                                    teacher_logits / args.temperature)
+                    # elif output_mode == "regression":
+                    #     loss_mse = MSELoss()
+                    #     cls_loss = loss_mse(student_logits.view(-1), label_ids.view(-1))
 
                     loss = cls_loss
                     tr_cls_loss += cls_loss.item()
@@ -987,101 +1044,114 @@ def main():
                     optimizer.zero_grad()
                     global_step += 1
 
-                if (global_step + 1) % args.eval_step == 0:
-                    logger.info("***** Running evaluation *****")
-                    logger.info("  Process = {} iter {} step".format(epoch_, global_step))
-                    logger.info("  Num examples = %d", len(eval_examples))
-                    logger.info("  Batch size = %d", args.eval_batch_size)
+                # if (global_step + 1) % args.eval_step == 0:
+                #     logger.info("***** Running evaluation *****")
+                #     logger.info("  Process = {} iter {} step".format(epoch_, global_step))
+                #     logger.info("  Num examples = %d", len(eval_examples))
+                #     logger.info("  Batch size = %d", args.eval_batch_size)
 
-                    student_model.eval()
+                #     student_model.eval()
 
-                    loss = tr_loss / (step + 1)
-                    cls_loss = tr_cls_loss / (step + 1)
-                    att_loss = tr_att_loss / (step + 1)
-                    rep_loss = tr_rep_loss / (step + 1)
+                #     loss = tr_loss / (step + 1)
+                #     cls_loss = tr_cls_loss / (step + 1)
+                #     att_loss = tr_att_loss / (step + 1)
+                #     rep_loss = tr_rep_loss / (step + 1)
 
-                    result = do_eval(student_model, task_name, eval_dataloader,
-                                     device, output_mode, eval_labels, num_labels)
+                #     result = do_eval(student_model, task_name, eval_dataloader,
+                #                      device, output_mode, eval_labels, num_labels)
 
-                    result['global_step'] = global_step
-                    result['loss'] = loss
-                    result['cls_loss'] = cls_loss
-                    result['att_loss'] = att_loss
-                    result['rep_loss'] = rep_loss
+                #     result['global_step'] = global_step
+                #     result['loss'] = loss
+                #     result['cls_loss'] = cls_loss
+                #     result['att_loss'] = att_loss
+                #     result['rep_loss'] = rep_loss
 
-                    result_to_file(result, output_eval_file)
+                #     result_to_file(result, output_eval_file)
 
-                    if not args.pred_distill:
-                        save_model = True
-                    else:
-                        save_model = False
+                #     if not args.pred_distill:
+                #         save_model = True
+                #     else:
+                #         save_model = False
 
-                        if task_name in acc_tasks and result['acc'] > best_dev_acc:
-                            best_dev_acc = result['acc']
-                            save_model = True
+                #         if task_name in acc_tasks and result['acc'] > best_dev_acc:
+                #             best_dev_acc = result['acc']
+                #             save_model = True
 
-                        if task_name in corr_tasks and result['corr'] > best_dev_acc:
-                            best_dev_acc = result['corr']
-                            save_model = True
+                #         if task_name in corr_tasks and result['corr'] > best_dev_acc:
+                #             best_dev_acc = result['corr']
+                #             save_model = True
 
-                        if task_name in mcc_tasks and result['mcc'] > best_dev_acc:
-                            best_dev_acc = result['mcc']
-                            save_model = True
+                #         if task_name in mcc_tasks and result['mcc'] > best_dev_acc:
+                #             best_dev_acc = result['mcc']
+                #             save_model = True
 
-                    if save_model:
-                        logger.info("***** Save model *****")
+                #     if save_model:
+                #         logger.info("***** Save model *****")
 
-                        model_to_save = student_model.module if hasattr(student_model, 'module') else student_model
+                #         model_to_save = student_model.module if hasattr(student_model, 'module') else student_model
 
-                        model_name = WEIGHTS_NAME
-                        # if not args.pred_distill:
-                        #     model_name = "step_{}_{}".format(global_step, WEIGHTS_NAME)
-                        output_model_file = os.path.join(args.output_dir, model_name)
-                        output_config_file = os.path.join(args.output_dir, CONFIG_NAME)
+                #         model_name = WEIGHTS_NAME
+                #         # if not args.pred_distill:
+                #         #     model_name = "step_{}_{}".format(global_step, WEIGHTS_NAME)
+                #         output_model_file = os.path.join(args.output_dir, model_name)
+                #         output_config_file = os.path.join(args.output_dir, CONFIG_NAME)
 
-                        torch.save(model_to_save.state_dict(), output_model_file)
-                        model_to_save.config.to_json_file(output_config_file)
-                        tokenizer.save_vocabulary(args.output_dir)
+                #         torch.save(model_to_save.state_dict(), output_model_file)
+                #         model_to_save.config.to_json_file(output_config_file)
+                #         tokenizer.save_vocabulary(args.output_dir)
 
-                        # Test mnli-mm
-                        if args.pred_distill and task_name == "mnli":
-                            task_name = "mnli-mm"
-                            processor = processors[task_name]()
-                            if not os.path.exists(args.output_dir + '-MM'):
-                                os.makedirs(args.output_dir + '-MM')
+                #         # Test mnli-mm
+                #         if args.pred_distill and task_name == "mnli":
+                #             task_name = "mnli-mm"
+                #             processor = processors[task_name]()
+                #             if not os.path.exists(args.output_dir + '-MM'):
+                #                 os.makedirs(args.output_dir + '-MM')
 
-                            eval_examples = processor.get_dev_examples(args.data_dir)
+                #             eval_examples = processor.get_dev_examples(args.data_dir)
 
-                            eval_features = convert_examples_to_features(
-                                eval_examples, label_list, args.max_seq_length, tokenizer, output_mode)
-                            eval_data, eval_labels = get_tensor_data(output_mode, eval_features)
+                #             eval_features = convert_examples_to_features(
+                #                 eval_examples, label_list, args.max_seq_length, tokenizer, output_mode)
+                #             eval_data, eval_labels = get_tensor_data(output_mode, eval_features)
 
-                            logger.info("***** Running mm evaluation *****")
-                            logger.info("  Num examples = %d", len(eval_examples))
-                            logger.info("  Batch size = %d", args.eval_batch_size)
+                #             logger.info("***** Running mm evaluation *****")
+                #             logger.info("  Num examples = %d", len(eval_examples))
+                #             logger.info("  Batch size = %d", args.eval_batch_size)
 
-                            eval_sampler = SequentialSampler(eval_data)
-                            eval_dataloader = DataLoader(eval_data, sampler=eval_sampler,
-                                                         batch_size=args.eval_batch_size)
+                #             eval_sampler = SequentialSampler(eval_data)
+                #             eval_dataloader = DataLoader(eval_data, sampler=eval_sampler,
+                #                                          batch_size=args.eval_batch_size)
 
-                            result = do_eval(student_model, task_name, eval_dataloader,
-                                             device, output_mode, eval_labels, num_labels)
+                #             result = do_eval(student_model, task_name, eval_dataloader,
+                #                              device, output_mode, eval_labels, num_labels)
 
-                            result['global_step'] = global_step
+                #             result['global_step'] = global_step
 
-                            tmp_output_eval_file = os.path.join(args.output_dir + '-MM', "eval_results.txt")
-                            result_to_file(result, tmp_output_eval_file)
+                #             tmp_output_eval_file = os.path.join(args.output_dir + '-MM', "eval_results.txt")
+                #             result_to_file(result, tmp_output_eval_file)
 
-                            task_name = 'mnli'
+                #             task_name = 'mnli'
 
-                        if oncloud:
-                            logging.info(mox.file.list_directory(args.output_dir, recursive=True))
-                            logging.info(mox.file.list_directory('.', recursive=True))
-                            mox.file.copy_parallel(args.output_dir, args.data_url)
-                            mox.file.copy_parallel('.', args.data_url)
+                #         if oncloud:
+                #             logging.info(mox.file.list_directory(args.output_dir, recursive=True))
+                #             logging.info(mox.file.list_directory('.', recursive=True))
+                #             mox.file.copy_parallel(args.output_dir, args.data_url)
+                #             mox.file.copy_parallel('.', args.data_url)
 
-                    student_model.train()
-
+                    # student_model.train()
+            student_model.eval()
+            result = do_eval(student_model, args.task_name, eval_dataloader,
+                                 device, eval_labels, num_labels)
+            # state = early_stopper.early_stop(result['eval_loss'])
+            result_to_file("###### epoch {} results are \n".format(epoch_), output_eval_file)
+            result_to_file(result, output_eval_file)
+            model_to_save = student_model.module if hasattr(student_model, 'module') else student_model
+            model_name = WEIGHTS_NAME
+            output_model_file = os.path.join(args.output_dir, model_name)
+            output_config_file = os.path.join(args.output_dir, CONFIG_NAME)
+            torch.save(model_to_save.state_dict(), output_model_file)
+            model_to_save.config.to_json_file(output_config_file)
+            tokenizer.save_vocabulary(args.output_dir)
+            student_model.train()
 
 if __name__ == "__main__":
     main()
