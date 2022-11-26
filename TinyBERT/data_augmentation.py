@@ -138,6 +138,20 @@ class DataAugmentor(object):
 
         if len(tokenized_text) > 512:
             tokenized_text = tokenized_text[:512]
+            if len(word_pieces) > 512:
+                tokenized_len = 511
+                print("mask id is {}".format(mask_id))
+                #mask_id = 512 if mask_id > 512 else mask_id
+            else:
+                tokenized_len = 512 - len(word_pieces) - 1
+        #     print("yes")
+        #     print(len(word_pieces))
+        #     print(tokenized_len)
+        #     print((tokenized_len + 1))
+        #     print((len(tokenized_text) - tokenized_len - 1))
+
+        # print((tokenized_len + 1))
+        # print((len(tokenized_text) - tokenized_len - 1))
 
         token_ids = self.tokenizer.convert_tokens_to_ids(tokenized_text)
         segments_ids = [0] * (tokenized_len + 1) + [1] * (len(tokenized_text) - tokenized_len - 1)
@@ -146,9 +160,10 @@ class DataAugmentor(object):
         segments_tensor = torch.tensor([segments_ids]).to(device)
 
         self.model.to(device)
-
+        #print(segments_tensor.shape)
         predictions = self.model(tokens_tensor, segments_tensor)
-
+        #print(mask_id)
+        #print(predictions.shape)
         word_candidates = torch.argsort(predictions[0, mask_id], descending=True)[:self.M].tolist()
         word_candidates = self.tokenizer.convert_ids_to_tokens(word_candidates)
 
@@ -192,7 +207,8 @@ class DataAugmentor(object):
         tokens = self.tokenizer.basic_tokenizer.tokenize(sent)
         candidate_words = {}
         for (idx, word) in enumerate(tokens):
-            if _is_valid(word) and word not in StopWordsList:
+            if _is_valid(word) and word not in StopWordsList and (idx < 512):
+                #print(idx)
                 candidate_words[idx] = self._word_augment(sent, idx, word)
         logger.info(candidate_words)
         cnt = 0
@@ -218,11 +234,11 @@ class AugmentProcessor(object):
         self.glue_dir = glue_dir
         self.task_name = task_name
         self.augment_ids = {'MRPC': [3, 4], 'MNLI': [8, 9], 'CoLA': [3], 'SST-2': [0],
-                            'STS-B': [7, 8], 'QQP': [3, 4], 'QNLI': [1, 2], 'RTE': [1, 2], 'MLMA' : [1]}
+                            'STS-B': [7, 8], 'QQP': [3, 4], 'QNLI': [1, 2], 'RTE': [1, 2], 'MLMA' : [1], 'IMDB':[1]}
 
         self.filter_flags = { 'MRPC': True, 'MNLI': True, 'CoLA': False, 'SST-2': True,
                               'STS-B': True, 'QQP': True, 'QNLI': True, 'RTE': True,
-                              'MLMA' : True}
+                              'MLMA' : True, 'IMDB': True}
 
         assert self.task_name in self.augment_ids
 
@@ -282,7 +298,8 @@ def main():
         "QQP": {"N": 10},
         "QNLI": {"N": 20},
         "RTE": {"N": 30},
-        "MLMA": {"N": 20}
+        "MLMA": {"N": 20},
+        "IMDB": {"N":5}
     }
 
     if args.task_name in default_params:

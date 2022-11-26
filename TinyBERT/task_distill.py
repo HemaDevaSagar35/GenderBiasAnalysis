@@ -956,6 +956,7 @@ def main():
         loss_mse = MSELoss()
 
         def soft_cross_entropy(predicts, targets):
+            ## I don't think we have to do any unbalance mitigation here.
             student_likelihood = torch.nn.functional.log_softmax(predicts, dim=-1)
             targets_prob = torch.nn.functional.softmax(targets, dim=-1)
             return (- targets_prob * student_likelihood).mean()
