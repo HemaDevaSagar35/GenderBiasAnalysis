@@ -354,9 +354,14 @@ class BertEmbeddings(nn.Module):
         if token_type_ids is None:
             token_type_ids = torch.zeros_like(input_ids)
 
+
         words_embeddings = self.word_embeddings(input_ids)
+        #print(words_embeddings.shape)
         position_embeddings = self.position_embeddings(position_ids)
+        #print(position_embeddings.shape)
         token_type_embeddings = self.token_type_embeddings(token_type_ids)
+        #print(token_type_embeddings.shape)
+        #print(token_type_ids.shape)
 
         embeddings = words_embeddings + position_embeddings + token_type_embeddings
         embeddings = self.LayerNorm(embeddings)

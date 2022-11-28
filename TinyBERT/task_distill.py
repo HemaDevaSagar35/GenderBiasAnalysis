@@ -486,6 +486,43 @@ class MLMAProcessor(DataProcessor):
                 InputExample(guid=guid, text_a=text_a, label=label))
         return examples
 
+class IMDBProcessor(DataProcessor):
+    """Processor for any binary classification "given Task" data set."""
+
+    def get_train_examples(self, data_dir):
+        """See base class."""
+        return self._create_examples(
+            self._read_tsv(os.path.join(data_dir, "train.tsv")), "train")
+
+    def get_dev_examples(self, data_dir):
+        """See base class."""
+        return self._create_examples(
+            self._read_tsv(os.path.join(data_dir, "dev.tsv")), "dev")
+    
+    def get_test_examples(self, data_dir):
+        """See base class."""
+        return self._create_examples(
+            self._read_tsv(os.path.join(data_dir, "test.tsv")), "dev")
+
+    def get_labels(self):
+        """See base class. This should be changed according to the task"""
+        return ['0', '1']
+
+    def _create_examples(self, lines, set_type):
+        """Creates examples for the training and dev sets."""
+        examples = []
+        for (i, line) in enumerate(lines):
+            if i == 0:
+                continue
+            guid = "%s-%s" % (set_type, i)
+            text_a = line[1]
+            #text_b = line[4]
+            label = line[2]
+            examples.append(
+                InputExample(guid=guid, text_a=text_a, label=label))
+        return examples
+
+
 def convert_examples_to_features(examples, label_list, max_seq_length,
                                  tokenizer):
     """Loads a data file into a list of `InputBatch`s."""
@@ -658,7 +695,8 @@ def do_eval(model, task_name, eval_dataloader,
 
         # create eval loss and other metric required by the task
         # if output_mode == "classification":
-        loss_fct = CrossEntropyLoss(weight = torch.tensor([8.3, 1.]).to(device))
+        #loss_fct = CrossEntropyLoss(weight = torch.tensor([8.3, 1.]).to(device))
+        loss_fct = CrossEntropyLoss()
         tmp_eval_loss = loss_fct(logits.view(-1, num_labels), label_ids.view(-1))
         # elif output_mode == "regression":
         #     loss_fct = MSELoss()
@@ -693,7 +731,18 @@ def compute_metrics(task_name, preds, labels):
         results['f1_score'] = f1_score(labels, preds)
         results['f1_weighted'] = f1_score(labels, preds, average = 'weighted')
         results['confusion_matrix'] = confusion_matrix(labels, preds)
+    
+    if task_name.lower() == 'imdb':
+        results['acc'] = simple_accuracy(preds, labels)
+        results['recall'] = recall_score(labels, preds)
+        results['precision'] = precision_score(labels, preds)
+        results['f1_score'] = f1_score(labels, preds)
+        results['f1_weighted'] = f1_score(labels, preds, average = 'weighted')
+        results['confusion_matrix'] = confusion_matrix(labels, preds)
+
     return results
+
+
 
 
 def main():
@@ -805,7 +854,8 @@ def main():
         "qnli": QnliProcessor,
         "rte": RteProcessor,
         "wnli": WnliProcessor,
-        "mlma": MLMAProcessor
+        "mlma": MLMAProcessor,
+        'imdb': IMDBProcessor
     }
 
     # output_modes = {
@@ -831,10 +881,11 @@ def main():
         "qqp": {"num_train_epochs": 5, "max_seq_length": 128},
         "qnli": {"num_train_epochs": 10, "max_seq_length": 128},
         "rte": {"num_train_epochs": 20, "max_seq_length": 128},
-        "mlma": {"num_train_epochs": 20, "max_seq_length": 128}
+        "mlma": {"num_train_epochs": 20, "max_seq_length": 128},
+        "imdb": {"num_train_epochs": 20, "max_seq_length": 128}
     }
 
-    acc_tasks = ["mnli", "mrpc", "sst-2", "qqp", "qnli", "rte", 'mlma']
+    acc_tasks = ["mnli", "mrpc", "sst-2", "qqp", "qnli", "rte", 'mlma', 'imdb']
     corr_tasks = ["sts-b"]
     mcc_tasks = ["cola"]
 
@@ -956,6 +1007,7 @@ def main():
         loss_mse = MSELoss()
 
         def soft_cross_entropy(predicts, targets):
+            ## I don't think we have to do any unbalance mitigation here.
             student_likelihood = torch.nn.functional.log_softmax(predicts, dim=-1)
             targets_prob = torch.nn.functional.softmax(targets, dim=-1)
             return (- targets_prob * student_likelihood).mean()

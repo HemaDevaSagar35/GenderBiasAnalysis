@@ -17,3 +17,8 @@ The following are the steps to be followed while training TinyBERT for a particu
 9---> Hyperparameters used for finetunine are : sequence length = 120 with right padding, batch_size=64, 
       learning_rate = 0.00002, wegith decay = 0.01, warmup = 10%, epoch = 30 and epoch 5 early stopping. For
       MLMA used weighted cross-entropy classification loss.
+
+
+
+
+https://dl.acm.org/doi/pdf/10.1145/3278721.3278729
