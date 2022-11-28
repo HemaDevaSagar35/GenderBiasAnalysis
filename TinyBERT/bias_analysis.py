@@ -247,7 +247,7 @@ def get_tensor_data(features):
                                 all_label_ids, all_seq_lengths)
     return tensor_data, all_label_ids
 
-def predictions(model, task_name, data_dir, max_seq_length, do_lower_case=True):
+def predictions(model, task_name, data_dir, max_seq_length, model_name = 'bert', do_lower_case=True, student=False):
 
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     n_gpu = torch.cuda.device_count()
@@ -258,7 +258,11 @@ def predictions(model, task_name, data_dir, max_seq_length, do_lower_case=True):
     num_labels = len(label_list)
 
     tokenizer = BertTokenizer.from_pretrained(model, do_lower_case= do_lower_case)
-    model = TinyBertForSequenceClassification.from_pretrained(model, num_labels=num_labels)
+    if model_name == 'bert':
+        print('yes')
+        model = BertForSequenceClassification.from_pretrained(model, num_labels=num_labels)
+    else:
+        model = TinyBertForSequenceClassification.from_pretrained(model, num_labels=num_labels)
     model.to(device)
 
     model.eval()
@@ -278,7 +282,10 @@ def predictions(model, task_name, data_dir, max_seq_length, do_lower_case=True):
         input_ids, input_mask, segment_ids, label_ids, seq_lengths = batch
         # if input_ids.size()[0] != batch_size:
         #     continue
-        logits, atts, reps = model(input_ids, segment_ids, input_mask, is_student=True)
+        if model_name == 'bert':
+            logits = model(input_ids, segment_ids, input_mask)
+        else:
+            logits, atts, reps = model(input_ids, segment_ids, input_mask, is_student=student)
         predictions = torch.nn.functional.softmax(logits, dim=-1)
         preds.append(predictions.detach().cpu().numpy())
     
@@ -368,7 +375,7 @@ def metrics_analysis(predictions, data_dir):
     overall = roc_auc_score(data['label'].values, predictions[:,1])
 
 
-    return auc_dict, overall
+    return auc_dict, overall, identity_wise_split
     
 
     
