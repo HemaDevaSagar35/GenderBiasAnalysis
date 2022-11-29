@@ -38,7 +38,7 @@ plot1.py
 res_data/.ipynb_checkpoints/
 res_data/__pycache__/
 
-res_models/*
+res_models/ex_BS
 res_results/*
 !res_results/IMDB_evaluation_df
 

@@ -63,7 +63,12 @@ your res_models has all the results and we can use evaluate.ipynb to get all res
 It is at line 479 and 78 in train_pytorch.py
 tokenizer, model = u.load_hf(model_id, h_droo)  # configuration=configuration)
 
+### rate
+run
+python3 -c 'import rate; rate.rate()'
+to get your bias calculations for specs in res_restults folder
 
+use biases.ipynb and tables.ipynb for consolidating and getting results for biases for model of your choice in table and picture format
 
 ### License 
 cite paper here.  
