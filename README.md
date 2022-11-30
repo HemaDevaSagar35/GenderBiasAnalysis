@@ -5,8 +5,11 @@ Note: For most of the experimentation, we adapted various official github repos.
 GenderBiasAnalysis/FT_Bert_Classification.py\
 GenderBiasAnalysis/task_distill.py\
 GenderBiasAnalysis/bias_analysis.py\
-GenderBiasAnalysis/result.ipynb
-
+GenderBiasAnalysis/result.ipynb\
+GenderBiasAnalysis/imdbtests/res_data/IMDB_data_preparation_script.py\
+GenderBiasAnalysis/imdbtests/rate.py
+GenderBiasAnalysis/imdbtests/res_plots/biases.ipynb
+GenderBiasAnalysis/imdbtests/res_plots/tables.ipynb
 
 INTRODUCTION
 ======== 
@@ -150,7 +153,7 @@ python -c 'import imdbtests.rate; rate.rate()'
 ```
 After this , you see the results in GenderBiasAnalysis/imdbtests/res_results folder
 
-use __biases.ipynb__ and __tables.ipynb__ for consolidating and getting results for biases for model of your choice in table and picture format
+use __GenderBiasAnalysis/imdbtests/res_plots/biases.ipynb__ and __GenderBiasAnalysis/imdbtests/res_plots/tables.ipynb__ for consolidating and getting results for biases for model of your choice in table and picture format
 
 REFERENCE
 ===================
