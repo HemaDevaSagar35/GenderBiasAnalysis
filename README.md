@@ -154,5 +154,5 @@ use __biases.ipynb__ and __tables.ipynb__ for consolidating and getting results 
 
 REFERENCE
 ===================
-https://github.com/huawei-noah/Pretrained-Language-Model/tree/master/TinyBERT
+https://github.com/huawei-noah/Pretrained-Language-Model/tree/master/TinyBERT \
 https://github.com/sciphie/bias-bert
