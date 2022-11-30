@@ -155,6 +155,12 @@ After this , you see the results in GenderBiasAnalysis/imdbtests/res_results fol
 
 use __GenderBiasAnalysis/imdbtests/res_plots/biases.ipynb__ and __GenderBiasAnalysis/imdbtests/res_plots/tables.ipynb__ for consolidating and getting results for biases for model of your choice in table and picture format
 
+SEAT Scoring
+===================
+Run the 2 steps mentioned in Unintended Bias section. 
+Run the ipython notebook named __seat_analysis.ipynb__. Notebook is self explanatory.
+SEAT test, results and plot can be found in SEAT folder
+
 REFERENCE
 ===================
 https://github.com/huawei-noah/Pretrained-Language-Model/tree/master/TinyBERT \
