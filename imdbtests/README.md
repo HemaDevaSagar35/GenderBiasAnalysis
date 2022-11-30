@@ -3,7 +3,7 @@
 Majority of code is written following https://github.com/sciphie/bias-bert which is the repository for the referred paper
 
 ### set up
-clone repository and cd into bias-bert  
+clone repository and cd into your project folder
 
 ### do this only if you use hprc
 ml purge
