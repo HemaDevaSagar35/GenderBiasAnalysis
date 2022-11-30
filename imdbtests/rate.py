@@ -207,9 +207,9 @@ def rate(task="IMDB", model_id="tinybert", spec=spec_in):
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
         if model_id == 'bertbase':
-            path = 'res_models/models/IMDB_tinybert_original'
-        else:
             path = 'res_models/models/imdb_bertbase_original'
+        else:
+            path = 'res_models/models/IMDB_tinybert_original'
         if model_id == 'bertbase':
             model = BertForSequenceClassification.from_pretrained(path, num_labels=2)
         else:
