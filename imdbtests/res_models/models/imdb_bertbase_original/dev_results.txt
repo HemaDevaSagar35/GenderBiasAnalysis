@@ -1,0 +1,10 @@
+###### test results are 
+
+acc = 0.873
+confusion_matrix = [[2144  329]
+ [ 306 2221]]
+eval_loss = 0.30243977439251674
+f1_score = 0.8749261374827655
+f1_weighted = 0.8729910011858412
+precision = 0.8709803921568627
+recall = 0.8789077958053028

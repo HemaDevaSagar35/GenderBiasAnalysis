@@ -1,0 +1,55 @@
+###### epoch 0 results are 
+
+eval_loss = 0.3265021330421897
+###### saving the model at epoch 0 
+
+###### epoch 1 results are 
+
+eval_loss = 0.30243977439251674
+###### saving the model at epoch 1 
+
+###### epoch 2 results are 
+
+eval_loss = 0.34216409447086843
+###### epoch 3 results are 
+
+eval_loss = 0.38782727549884727
+###### epoch 4 results are 
+
+eval_loss = 0.4772574464867639
+###### epoch 5 results are 
+
+eval_loss = 0.4672290252130123
+###### epoch 6 results are 
+
+eval_loss = 0.49048052782750434
+###### epoch 7 results are 
+
+eval_loss = 0.549341125057856
+###### epoch 8 results are 
+
+eval_loss = 0.5468333949613723
+###### epoch 9 results are 
+
+eval_loss = 0.6004869228311974
+###### epoch 10 results are 
+
+eval_loss = 0.5762623158894526
+###### epoch 11 results are 
+
+eval_loss = 0.6140961926193185
+###### epoch 12 results are 
+
+eval_loss = 0.6560857710057787
+###### epoch 13 results are 
+
+eval_loss = 0.5890928535473052
+###### epoch 14 results are 
+
+eval_loss = 0.5931981462439534
+###### epoch 15 results are 
+
+eval_loss = 0.6598698827171117
+###### epoch 16 results are 
+
+eval_loss = 0.6830883026716246
