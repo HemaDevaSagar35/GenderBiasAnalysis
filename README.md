@@ -167,4 +167,5 @@ SEAT test, results and plot can be found in SEAT folder
 REFERENCE
 ===================
 https://github.com/huawei-noah/Pretrained-Language-Model/tree/master/TinyBERT \
-https://github.com/sciphie/bias-bert
+https://github.com/sciphie/bias-bert \
+https://github.com/W4ngatang/sent-bias
