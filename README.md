@@ -1,6 +1,15 @@
+ACKNOWLEDGEMENT
+==============
+Note: For most of the experimentation, we adapted various official github repos. You can find them in Reference section. That being said below are the scripts that we either wrote from scratch or adapted an existing script and upgraded it.
+
+GenderBiasAnalysis/FT_Bert_Classification.py\
+GenderBiasAnalysis/task_distill.py\
+GenderBiasAnalysis/bias_analysis.py\
+GenderBiasAnalysis/result.ipynb
+
+
 INTRODUCTION
 ======== 
-Note: For most of the experimentation, we adapted the offcial github repo on TinyBERT from here [https://github.com/huawei-noah/Pretrained-Language-Model/tree/master/TinyBERT].
 
 There are 2 facets here:
 1) Training Bert and TinyBert models on MLMA and IMDB datasets
@@ -120,10 +129,14 @@ NOTE: The above are required if you want to run Step 2 directly using our models
 
 Now following are the codes you have to run to get all the results under Step 2. For convinience we are categorzing based on the analysis we did
 
-UNINTENDED BIAS
+Uunintended Bias
 ==================
 Run the ipython notebook named __analysis.ipynb__. This ipython notebook is self explanatory and does all the analysis that was presented in the report and presentation slides.
 
 
 
+
+REFERENCE
+===================
+[https://github.com/huawei-noah/Pretrained-Language-Model/tree/master/TinyBERT]
 
