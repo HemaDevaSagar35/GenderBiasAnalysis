@@ -129,7 +129,7 @@ NOTE: The above are required if you want to run Step 2 directly using our models
 
 Now following are the codes you have to run to get all the results under Step 2. For convinience we are categorzing based on the analysis we did
 
-Uunintended Bias
+Unintended Bias
 ==================
 Run the ipython notebook named __analysis.ipynb__. This ipython notebook is self explanatory and does all the analysis that was presented in the report and presentation slides.
 
