@@ -14,6 +14,7 @@ from transformers import TrainingArguments, Trainer
 from train_functions import timestamp
 from rtpt import RTPT
 from transformer.modeling import TinyBertForSequenceClassification
+from transformer.modeling import BertForSequenceClassification, TinyBertForSequenceClassification
 from transformer.tokenization import BertTokenizer
 from util import load_hf
 from tqdm import tqdm
@@ -191,7 +192,7 @@ def rate(task="IMDB", model_id="tinybert", spec=spec_in):
     df_l = pd.read_pickle('{}_l_test'.format(task))
     
     df_exp = []
-    for elem in spec_in: 
+    for elem in ['pro','weat', 'all']: 
         df_exp = df_l[['ID', 'text_{}_M'.format(elem), 'text_{}_F'.format(elem), 'label']]
         df_exp['label'][df_exp['label'] == 'pos'] = 1
         df_exp['label'][df_exp['label'] == 'neg'] = 0
@@ -205,9 +206,16 @@ def rate(task="IMDB", model_id="tinybert", spec=spec_in):
         female_df_exp.to_csv('text_{}_F.tsv'.format(elem), sep="\t")
 
         device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-        path = 'res_models/models/IMDB_tinybert_original'
+        if model_id == 'bertbase':
+            path = 'res_models/models/IMDB_tinybert_original'
+        else:
+            path = 'res_models/models/imdb_bertbase_original'
+        if model_id == 'bertbase':
+            model = BertForSequenceClassification.from_pretrained(path, num_labels=2)
+        else:
+            model = TinyBertForSequenceClassification.from_pretrained(path, num_labels=2)
         tokenizer = BertTokenizer.from_pretrained(path, do_lower_case= True)
-        model = TinyBertForSequenceClassification.from_pretrained(path, num_labels=2)
+        
         model.to(device)
 
         model.eval()
@@ -227,8 +235,11 @@ def rate(task="IMDB", model_id="tinybert", spec=spec_in):
             input_ids, input_mask, segment_ids, label_ids, seq_lengths = batch
             # if input_ids.size()[0] != batch_size:
             #     continue
+            if model_id == 'bertbase':
+                logits = model(input_ids, segment_ids, input_mask)
+            else:
             
-            logits, atts, reps = model(input_ids, segment_ids, input_mask, is_student=False)
+                logits, atts, reps = model(input_ids, segment_ids, input_mask, is_student=False)
             predictions = torch.nn.functional.softmax(logits, dim=-1)
             preds.append(predictions.detach().cpu().numpy())
             
@@ -247,7 +258,10 @@ def rate(task="IMDB", model_id="tinybert", spec=spec_in):
 
             input_ids, input_mask, segment_ids, label_ids, seq_lengths = batch
             
-            logits, atts, reps = model(input_ids, segment_ids, input_mask, is_student=False)
+            if model_id == 'bertbase':
+                logits = model(input_ids, segment_ids, input_mask)
+            else:
+                logits, atts, reps = model(input_ids, segment_ids, input_mask, is_student=False)
             predictions = torch.nn.functional.softmax(logits, dim=-1)
             preds.append(predictions.detach().cpu().numpy())
     

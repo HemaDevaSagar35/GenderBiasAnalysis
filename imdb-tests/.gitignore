@@ -46,3 +46,10 @@ training_log
 
 !res_models/.placeholder
 
+IMDB_l_test
+IMDB_l_train
+
+IMDB_training
+
+data_prep
+
