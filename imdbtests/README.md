@@ -42,7 +42,7 @@ export TRANSFORMERS_CACHE=/scratch/user/sreeja_govardhana/nlp-project/hgcache
 export MPLCONFIGDIR=/scratch/user/sreeja_govardhana/nlp-project/mpcache
 
 ### get and prepare data 
-`python3 imdb-tests/res_data/IMDB_data_preparation_script.py | tee data_prep.txt`  
+`python3 imdbtests/res_data/IMDB_data_preparation_script.py | tee data_prep.txt`  
 
 Check after this step if you have
 IMDB_l_test file in your folders
@@ -62,7 +62,7 @@ and
 
 ### rate for bias measurement
 run below command
-python3 -c 'import imdb-tests.rate; rate.rate()'
+python3 -c 'import imdbtests.rate; rate.rate()'
 to get your bias calculations for specs in res_restults folder
 
 After this , you see the results in res_results folder
