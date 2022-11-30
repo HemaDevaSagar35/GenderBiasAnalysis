@@ -2,14 +2,17 @@ ACKNOWLEDGEMENT
 ==============
 Note: For most of the experimentation, we adapted various official github repos. You can find them in Reference section. That being said below are the scripts that we either wrote from scratch or adapted an existing script and upgraded it.
 
-GenderBiasAnalysis/FT_Bert_Classification.py\
-GenderBiasAnalysis/task_distill.py\
-GenderBiasAnalysis/bias_analysis.py\
-GenderBiasAnalysis/result.ipynb\
+GenderBiasAnalysis/TinyBERT/FT_Bert_Classification.py\
+GenderBiasAnalysis/TinyBERT/task_distill.py\
+GenderBiasAnalysis/TinyBERT/bias_analysis.py\
+GenderBiasAnalysis/TinyBERT/result.ipynb\
 GenderBiasAnalysis/imdbtests/res_data/IMDB_data_preparation_script.py\
 GenderBiasAnalysis/imdbtests/rate.py
 GenderBiasAnalysis/imdbtests/res_plots/biases.ipynb
 GenderBiasAnalysis/imdbtests/res_plots/tables.ipynb
+GenderBiasAnalysis/TinyBERT/seat_analysis.ipynb
+GenderBiasAnalysis/TinyBERT/seat_analysis.py
+GenderBiasAnalysis/TinyBERT/seat_bert_encoder.ipynb
 
 INTRODUCTION
 ======== 
@@ -135,7 +138,7 @@ NOTE: The above are required if you want to run this analysis in Step 2 directly
 
 Now following are the codes you have to run to get all the results under this analysis in Step 2.
 
-Run the ipython notebook named __analysis.ipynb__. This ipython notebook is self explanatory and does all the analysis that was presented in the report and presentation slides.
+Run the ipython notebook named __GenderBiasAnalysis/TinyBERT/analysis.ipynb__. This ipython notebook is self explanatory and does all the analysis that was presented in the report and presentation slides.
 
 Gender Bias
 =================
@@ -158,7 +161,7 @@ use __GenderBiasAnalysis/imdbtests/res_plots/biases.ipynb__ and __GenderBiasAnal
 SEAT Scoring
 ===================
 Run the 2 steps mentioned in Unintended Bias section. 
-Run the ipython notebook named __seat_analysis.ipynb__. Notebook is self explanatory.
+Run the ipython notebook named __GenderBiasAnalysis/TinyBERT/seat_analysis.ipynb__. Notebook is self explanatory.
 SEAT test, results and plot can be found in SEAT folder
 
 REFERENCE
