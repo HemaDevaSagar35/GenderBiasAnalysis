@@ -121,22 +121,38 @@ python GenderBiasAnalysis/TinyBERT/task_distill.py --pred_distill  \
 HOW TO RUN STEP 2
 =================
 
-Like mentioned at the start, you can run step 2 either using our models directly or by first running Step 1 and re-generating the models.
-If you want to run step 2 directly using our models, please do the following pre-requisites first
-1. Download the folder output_models, tinybert_model, imdb_output_models, tinybert_imdb_model from here [https://drive.google.com/drive/folders/1XmLXSMbYAur1mZfqGJfmUaTQGa8BuX1S?usp=share_link] and place them in GenderBiasAnalysis/TinyBERT/
-2. Download the glue_data folder from [https://drive.google.com/drive/folders/1XmLXSMbYAur1mZfqGJfmUaTQGa8BuX1S?usp=share_link] and place them in GenderBiasAnalysis/data/
-NOTE: The above are required if you want to run Step 2 directly using our models.
-
-Now following are the codes you have to run to get all the results under Step 2. For convinience we are categorzing based on the analysis we did
+Like mentioned at the start, you can run step 2 either using our models directly or by first running Step 1 and re-generating the models. For convinience we are categorzing based on the analysis we did
 
 Unintended Bias
 ==================
+If you want to run this analysis in step 2 directly using our models, please do the following pre-requisites first
+1. Download the folder output_models, tinybert_model, imdb_output_models, tinybert_imdb_model from here [https://drive.google.com/drive/folders/1XmLXSMbYAur1mZfqGJfmUaTQGa8BuX1S?usp=share_link] and place them in GenderBiasAnalysis/TinyBERT/
+2. Download the glue_data folder from [https://drive.google.com/drive/folders/1XmLXSMbYAur1mZfqGJfmUaTQGa8BuX1S?usp=share_link] and place them in GenderBiasAnalysis/data/
+NOTE: The above are required if you want to run this analysis in Step 2 directly using our models.
+
+Now following are the codes you have to run to get all the results under this analysis in Step 2.
+
 Run the ipython notebook named __analysis.ipynb__. This ipython notebook is self explanatory and does all the analysis that was presented in the report and presentation slides.
 
+Gender Bias
+=================
+First, place the model configurations in the "GenderBiasAnalysis/imdbtests/res_models/models" folder https://drive.google.com/drive/folders/1XmLXSMbYAur1mZfqGJfmUaTQGa8BuX1S tinybert_imdb_model and imdb_output_models rename them such that the path to them is 'GenderBiasAnalysis/imdbtests/res_models/models/imdb_bertbase_original' and 'GenderBiasAnalysis/imdbtests/res_models/models/IMDB_tinybert_original'
 
+Then run the following command
 
+```bash
+python imdbtests/res_data/IMDB_data_preparation_script.py | tee data_prep.txt
+```
+
+Then run the following command to get your bias calculations for specs in GenderBiasAnalysis/imdbtests/res_restults folder
+```bash
+python -c 'import imdbtests.rate; rate.rate()'
+```
+After this , you see the results in GenderBiasAnalysis/imdbtests/res_results folder
+
+use __biases.ipynb__ and __tables.ipynb__ for consolidating and getting results for biases for model of your choice in table and picture format
 
 REFERENCE
 ===================
-[https://github.com/huawei-noah/Pretrained-Language-Model/tree/master/TinyBERT]
-
+https://github.com/huawei-noah/Pretrained-Language-Model/tree/master/TinyBERT
+https://github.com/sciphie/bias-bert
