@@ -1,4 +1,4 @@
-# bias-bert
+# gender bias in tinybert
 
 Majority of code is written following https://github.com/sciphie/bias-bert which is the repository for the referred paper
 
