@@ -16,6 +16,7 @@ GenderBiasAnalysis/TinyBERT/seat_bert_encoder.ipynb
 
 INTRODUCTION
 ======== 
+Note: We used bert base uncased as our teacher model for experimentation. You can find the github repo of this project at [https://github.com/HemaDevaSagar35/GenderBiasAnalysis]
 
 There are 2 facets here:
 1) Training Bert and TinyBert models on MLMA and IMDB datasets
@@ -30,7 +31,10 @@ HOW TO RUN STEP 1
 
 pre-requisites
 ==============
-1. pip install -r TinyBert/requirements.txt
+1. Go to GenderBiasAnalysis/TinyBERT/ and run
+```
+pip install -r requirements.txt
+```
 2. Download GloVe embedding from here [https://nlp.stanford.edu/data/glove.6B.zip]
 3. Unzip it in GenderBiasAnalysis/TinyBERT/embeddings folder
 4. Download bert-base-uncased folder from [https://drive.google.com/drive/folders/1XmLXSMbYAur1mZfqGJfmUaTQGa8BuX1S?usp=share_link] and place it in GenderBiasAnalysis/TinyBERT/
@@ -39,7 +43,7 @@ pre-requisites
 
 Training Hate Speech model on MLMA
 ==================================
-1. Go to the directory GenderBiasAnalysis/TinyBERT/
+1. Change the working directory to GenderBiasAnalysis/TinyBERT/
 2. Fine Tune Bert on MLMA dataset with the following command 
 ```bash
 python FT_Bert_Classification.py --data_dir ../data/glue_data/MLMA \
@@ -81,7 +85,7 @@ python task_distill.py --pred_distill  \
 
 Training Sentiment model on IMDB
 ==================================
-1. Go to the directory GenderBiasAnalysis/TinyBERT/
+1. Change the working directory to GenderBiasAnalysis/TinyBERT/
 2. Fine tune bert on IMDB dataset using the following comamand
 
 ```bash
@@ -146,14 +150,14 @@ Gender Bias
 =================
 First, place the model configurations in the "GenderBiasAnalysis/imdbtests/res_models/models" folder https://drive.google.com/drive/folders/1XmLXSMbYAur1mZfqGJfmUaTQGa8BuX1S tinybert_imdb_model and imdb_output_models rename them such that the path to them is 'GenderBiasAnalysis/imdbtests/res_models/models/imdb_bertbase_original' and 'GenderBiasAnalysis/imdbtests/res_models/models/IMDB_tinybert_original'
 
-Change to the directory GenderBiasAnalysis/
+Change the working directory to GenderBiasAnalysis/
 Then run the following command
 
 ```bash
 python imdbtests/res_data/IMDB_data_preparation_script.py | tee imdbtests/data_prep.txt
 ```
 
-Then run the following command to get your bias calculations for specs in GenderBiasAnalysis/imdbtests/res_restults folder
+Then run the following command to get your bias calculations for specs in GenderBiasAnalysis/imdbtests/res_results folder
 ```bash
 python -c 'import imdbtests.rate; rate.rate()'
 ```
@@ -172,7 +176,7 @@ Log Probability Bias Score
 Follow steps 1 and 2 mentioned in Unintended Bias section.
 To run log probability bias tests use the following command
 
-First, Change to the directory GenderBiasAnalysis/
+First, Change the working directory to GenderBiasAnalysis/
 
 ```
 python TinyBERT/log_probability_bias_analysis.py 
@@ -180,7 +184,7 @@ python TinyBERT/log_probability_bias_analysis.py
     --model [MODEL PATH] 
     --out Log_Probability_Bias/results/[SAMPLE NAME].csv
 ```
-MODEL PATH would be TinyBERT/output_models, TinyBERT/imdb_output_models, TinyBERT/tinybert_model, TinyBERT/tinybert_imdb_model. To run for all the four models, replace
+MODEL PATH for the 4 models would be TinyBERT/output_models, TinyBERT/imdb_output_models, TinyBERT/tinybert_model, TinyBERT/tinybert_imdb_model. To run for all the four models, replace
 MODEL PATH with each model path individually and then run. Also replace [SAMPLE NAME].csv, with the name you want to store the file with.
 
 Sample command: 
@@ -193,10 +197,25 @@ python TinyBERT/log_probability_bias_analysis.py
 
 Results and other resources related to log probability tests can be found in __Log_Probability_Bias__ folder 
 
+Categorical Bias Score
+======================
+First, change the working directory to GenderBiasAnalysis/categorical_bias_score/
+Then do
+
+``` 
+pip install -r requirements.txt
+```
+
+Evaluation script Add the pretrained model using the below command and change the name of the bert_config file to config.json as the code is testing using the open source transformers
+
+``` 
+categorical_score.py --lang en --custom_model_path [MODEL PATH]
+```
 
 REFERENCE
 ===================
 https://github.com/huawei-noah/Pretrained-Language-Model/tree/master/TinyBERT \
 https://github.com/sciphie/bias-bert \
 https://github.com/W4ngatang/sent-bias \
-https://github.com/marionbartl/gender-bias-BERT
+https://github.com/marionbartl/gender-bias-BERT\
+https://github.com/jaimeenahn/ethnic_bias
