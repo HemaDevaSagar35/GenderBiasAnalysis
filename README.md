@@ -164,8 +164,29 @@ Run the 2 steps mentioned in Unintended Bias section.
 Run the ipython notebook named __GenderBiasAnalysis/TinyBERT/seat_analysis.ipynb__. Notebook is self explanatory.
 SEAT test, results and plot can be found in SEAT folder
 
+Log Probability Bias Score
+=============================
+Follow steps 1 and 2 mentioned in Unintended Bias section.
+To run log probability bias tests use the following command
+```
+python /path/to/log_bias_analysis.py 
+    --eval /path/to/GenderBiasAnalysis/TinyBERT/BEC-Pro/BEC-Pro_EN.tsv 
+    --model /path/to/model/of/your/choice 
+    --out /location/where/results/have/to/stored
+```
+Sample command: 
+``` 
+python /content/gdrive/MyDrive/GenderBiasAnalysis/TinyBERT/log_probability_bias_analysis.py 
+    --eval /content/gdrive/MyDrive/GenderBiasAnalysis/TinyBERT/BEC-Pro/BEC-Pro_EN.tsv 
+    --model /content/gdrive/MyDrive/GenderBiasAnalysis/TinyBERT/tinybert_imdb_model 
+    --out /content/gdrive/MyDrive/GenderBiasAnalysis/data/results
+```
+Results and other resources related to log probability tests can be found in __Log_Probability_Bias__ folder 
+
+
 REFERENCE
 ===================
 https://github.com/huawei-noah/Pretrained-Language-Model/tree/master/TinyBERT \
 https://github.com/sciphie/bias-bert \
-https://github.com/W4ngatang/sent-bias
+https://github.com/W4ngatang/sent-bias \
+https://github.com/marionbartl/gender-bias-BERT
