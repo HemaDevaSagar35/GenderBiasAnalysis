@@ -172,19 +172,25 @@ Log Probability Bias Score
 Follow steps 1 and 2 mentioned in Unintended Bias section.
 To run log probability bias tests use the following command
 
+First, Change to the directory GenderBiasAnalysis/
+
 ```
-python /path/to/log_bias_analysis.py 
-    --eval /path/to/GenderBiasAnalysis/TinyBERT/BEC-Pro/BEC-Pro_EN.tsv 
-    --model /path/to/model/of/your/choice 
-    --out /location/where/results/have/to/stored
+python TinyBERT/log_probability_bias_analysis.py 
+    --eval Log_Probability_Bias/Corpus_Creation/BEC-Pro/BEC-Pro_EN.tsv 
+    --model [MODEL PATH] 
+    --out Log_Probability_Bias/results/[SAMPLE NAME].csv
 ```
+MODEL PATH would be TinyBERT/output_models, TinyBERT/imdb_output_models, TinyBERT/tinybert_model, TinyBERT/tinybert_imdb_model. To run for all the four models, replace
+MODEL PATH with each model path individually and then run. Also replace [SAMPLE NAME].csv, with the name you want to store the file with.
+
 Sample command: 
 ``` 
-python /content/gdrive/MyDrive/GenderBiasAnalysis/TinyBERT/log_probability_bias_analysis.py 
-    --eval /content/gdrive/MyDrive/GenderBiasAnalysis/TinyBERT/BEC-Pro/BEC-Pro_EN.tsv 
-    --model /content/gdrive/MyDrive/GenderBiasAnalysis/TinyBERT/tinybert_imdb_model 
-    --out /content/gdrive/MyDrive/GenderBiasAnalysis/data/results
+python TinyBERT/log_probability_bias_analysis.py  
+    --eval Log_Probability_Bias/Corpus_Creation/BEC-Pro/BEC-Pro_EN.tsv  
+    --model TinyBERT/tinybert_imdb_model 
+    --out Log_Probability_Bias/results/tinybert_result.csv
 ```
+
 Results and other resources related to log probability tests can be found in __Log_Probability_Bias__ folder 
 
 
