@@ -1,0 +1,4 @@
+CB score of bert_hate_speech_model = 0.15535170361789577
+CB Score of tiny_bert_hate_speech_model = 0.031339680741648834
+CB score of bert_imdb_model = 0.31733183240906626
+CB Score of tiny_bert_imdb_model = 0.023183822467175312
