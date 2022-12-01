@@ -7,11 +7,11 @@ GenderBiasAnalysis/TinyBERT/task_distill.py\
 GenderBiasAnalysis/TinyBERT/bias_analysis.py\
 GenderBiasAnalysis/TinyBERT/result.ipynb\
 GenderBiasAnalysis/imdbtests/res_data/IMDB_data_preparation_script.py\
-GenderBiasAnalysis/imdbtests/rate.py
-GenderBiasAnalysis/imdbtests/res_plots/biases.ipynb
-GenderBiasAnalysis/imdbtests/res_plots/tables.ipynb
-GenderBiasAnalysis/TinyBERT/seat_analysis.ipynb
-GenderBiasAnalysis/TinyBERT/seat_analysis.py
+GenderBiasAnalysis/imdbtests/rate.py\
+GenderBiasAnalysis/imdbtests/res_plots/biases.ipynb\
+GenderBiasAnalysis/imdbtests/res_plots/tables.ipynb\
+GenderBiasAnalysis/TinyBERT/seat_analysis.ipynb\
+GenderBiasAnalysis/TinyBERT/seat_analysis.py\
 GenderBiasAnalysis/TinyBERT/seat_bert_encoder.ipynb
 
 INTRODUCTION
