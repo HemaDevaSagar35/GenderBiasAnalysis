@@ -39,36 +39,37 @@ pre-requisites
 
 Training Hate Speech model on MLMA
 ==================================
-1. Fine Tune Bert on MLMA dataset with the following command 
+1. Go to the directory GenderBiasAnalysis/TinyBERT/
+2. Fine Tune Bert on MLMA dataset with the following command 
 ```bash
-python GenderBiasAnalysis/TinyBERT/FT_Bert_Classification.py --data_dir GenderBiasAnalysis/data/glue_data/MLMA \
-                                       --pre_trained_bert GenderBiasAnalysis/TinyBERT/bert-base-uncased \
+python FT_Bert_Classification.py --data_dir ../data/glue_data/MLMA \
+                                       --pre_trained_bert bert-base-uncased \
                                        --task_name MLMA \
                                        --do_lower_case \
-                                       --output_dir GenderBiasAnalysis/TinyBERT/output_models \
+                                       --output_dir output_models \
                                        --num_train_epochs 30
 ``` 
-2. Do intermediate distillation of TinyBERT on MLMA using the following command
+3. Do intermediate distillation of TinyBERT on MLMA using the following command
 ```bash
-python GenderBiasAnalysis/TinyBERT/task_distill.py --teacher_model GenderBiasAnalysis/TinyBERT/output_models \
-                       --student_model drive/MyDrive/tinybert-gkd-model \
-                       --data_dir GenderBiasAnalysis/data/glue_data/MLMA \
+python task_distill.py --teacher_model output_models \
+                       --student_model tinybert-gkd-model \
+                       --data_dir ../data/glue_data/MLMA \
                        --task_name MLMA \
-                       --output_dir GenderBiasAnalysis/TinyBERT/tiny_temp_model \
+                       --output_dir tiny_temp_model \
                        --max_seq_length 128 \
                        --train_batch_size 32 \
                        --num_train_epochs 20 \
                        --aug_train \
                        --do_lower_case
 ``` 
-3. Do prediction layer distillation of TinyBERT on MLMA using the following command
+4. Do prediction layer distillation of TinyBERT on MLMA using the following command
 ```bash
-python GenderBiasAnalysis/TinyBERT/task_distill.py --pred_distill  \
-                       --teacher_model GenderBiasAnalysis/TinyBERT/output_models \
-                       --student_model GenderBiasAnalysis/TinyBERT/tiny_temp_model \
-                       --data_dir GenderBiasAnalysis/data/glue_data/MLMA \
+python task_distill.py --pred_distill  \
+                       --teacher_model output_models \
+                       --student_model tiny_temp_model \
+                       --data_dir ../data/glue_data/MLMA \
                        --task_name MLMA \
-                       --output_dir GenderBiasAnalysis/TinyBERT/tinybert_model \
+                       --output_dir tinybert_model \
                        --aug_train \
                        --do_lower_case \
                        --learning_rate 3e-5  \
@@ -83,11 +84,11 @@ Training Sentiment model on IMDB
 1. Fine tune bert on IMDB dataset using the following comamand
 
 ```bash
-python GenderBiasAnalysis/TinyBERT/FT_Bert_Classification.py --data_dir GenderBiasAnalysis/data/glue_data/IMDB \
-                                     --pre_trained_bert GenderBiasAnalysis/TinyBERT/bert-base-uncased \
+python FT_Bert_Classification.py --data_dir ../data/glue_data/IMDB \
+                                     --pre_trained_bert bert-base-uncased \
                                      --task_name IMDB \
                                      --do_lower_case \
-                                     --output_dir GenderBiasAnalysis/TinyBERT/imdb_output_models \
+                                     --output_dir imdb_output_models \
                                      --num_train_epochs 30
 
 ``` 
@@ -95,11 +96,11 @@ python GenderBiasAnalysis/TinyBERT/FT_Bert_Classification.py --data_dir GenderBi
 2. Do intermediate distillation of TinyBERT on IMDB using the following command
 
 ```bash
-python GenderBiasAnalysis/TinyBERT/task_distill.py --teacher_model GenderBiasAnalysis/TinyBERT/imdb_output_models \
-                       --student_model GenderBiasAnalysis/TinyBERT/tinybert-gkd-model \
-                       --data_dir GenderBiasAnalysis/data/glue_data/IMDB \
+python task_distill.py --teacher_model imdb_output_models \
+                       --student_model tinybert-gkd-model \
+                       --data_dir ../data/glue_data/IMDB \
                        --task_name IMDB \
-                       --output_dir GenderBiasAnalysis/TinyBERT/tiny_temp_imdb_model \
+                       --output_dir tiny_temp_imdb_model \
                        --max_seq_length 128 \
                        --train_batch_size 32 \
                        --num_train_epochs 20 \
@@ -110,12 +111,12 @@ python GenderBiasAnalysis/TinyBERT/task_distill.py --teacher_model GenderBiasAna
 3. Do prediction layer distillation of TinyBERT on IMDB using the following command
 
 ```bash
-python GenderBiasAnalysis/TinyBERT/task_distill.py --pred_distill  \
-                       --teacher_model GenderBiasAnalysis/TinyBERT/imdb_output_models \
-                       --student_model GenderBiasAnalysis/TinyBERT/tiny_temp_imdb_model \
-                       --data_dir GenderBiasAnalysis/data/glue_data/IMDB \
+python task_distill.py --pred_distill  \
+                       --teacher_model imdb_output_models \
+                       --student_model tiny_temp_imdb_model \
+                       --data_dir ../data/glue_data/IMDB \
                        --task_name IMDB \
-                       --output_dir GenderBiasAnalysis/TinyBERT/tinybert_imdb_model \
+                       --output_dir tinybert_imdb_model \
                        --do_lower_case \
                        --learning_rate 3e-5  \
                        --num_train_epochs  3  \
@@ -144,10 +145,11 @@ Gender Bias
 =================
 First, place the model configurations in the "GenderBiasAnalysis/imdbtests/res_models/models" folder https://drive.google.com/drive/folders/1XmLXSMbYAur1mZfqGJfmUaTQGa8BuX1S tinybert_imdb_model and imdb_output_models rename them such that the path to them is 'GenderBiasAnalysis/imdbtests/res_models/models/imdb_bertbase_original' and 'GenderBiasAnalysis/imdbtests/res_models/models/IMDB_tinybert_original'
 
+Change to the directory GenderBiasAnalysis/
 Then run the following command
 
 ```bash
-python imdbtests/res_data/IMDB_data_preparation_script.py | tee data_prep.txt
+python imdbtests/res_data/IMDB_data_preparation_script.py | tee imdbtests/data_prep.txt
 ```
 
 Then run the following command to get your bias calculations for specs in GenderBiasAnalysis/imdbtests/res_restults folder
