@@ -16,13 +16,14 @@ GenderBiasAnalysis/TinyBERT/seat_bert_encoder.ipynb
 
 INTRODUCTION
 ======== 
-Note: We used bert base uncased as our teacher model for experimentation. You can find the github repo of this project at [https://github.com/HemaDevaSagar35/GenderBiasAnalysis]
+Note: We used bert base uncased as our teacher model for experimentation. You can find the github repo of this project at [https://github.com/HemaDevaSagar35/GenderBiasAnalysis].
+Also we are sharing google drive link, below, where we uploaded our models and data (that are too huge to put in canvas or github)
 
 There are 2 facets here:
 1) Training Bert and TinyBert models on MLMA and IMDB datasets
 2) Doing various bias analysis with the models obtained from step 1.
 
-You could Skip step 1 and run scripts responsible for Step 2 using the models we generated from our experiments. You can find the models we generated here [https://drive.google.com/drive/folders/1XmLXSMbYAur1mZfqGJfmUaTQGa8BuX1S?usp=share_link]
+You could Skip step 1 and run scripts responsible for Step 2 using the models we generated from our experiments. You can find the models we generated and relevent data here [https://drive.google.com/drive/folders/1XmLXSMbYAur1mZfqGJfmUaTQGa8BuX1S?usp=share_link]
 
 But incase you want to run Step 1 and re-generate the models, below are the things you have to do:
 
@@ -148,7 +149,7 @@ Run the ipython notebook named __GenderBiasAnalysis/TinyBERT/analysis.ipynb__. T
 
 Gender Bias
 =================
-First, place the model configurations in the "GenderBiasAnalysis/imdbtests/res_models/models" folder https://drive.google.com/drive/folders/1XmLXSMbYAur1mZfqGJfmUaTQGa8BuX1S tinybert_imdb_model and imdb_output_models rename them such that the path to them is 'GenderBiasAnalysis/imdbtests/res_models/models/imdb_bertbase_original' and 'GenderBiasAnalysis/imdbtests/res_models/models/IMDB_tinybert_original'
+First, place the models tinybert_imdb_model and imdb_output_models in the "GenderBiasAnalysis/imdbtests/res_models/models" folder (download them from here https://drive.google.com/drive/folders/1XmLXSMbYAur1mZfqGJfmUaTQGa8BuX1S) rename them as 'IMDB_tinybert_original' and 'imdb_bertbase_original' respectively.
 
 Change the working directory to GenderBiasAnalysis/
 Then run the following command
