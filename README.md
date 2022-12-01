@@ -81,7 +81,8 @@ python task_distill.py --pred_distill  \
 
 Training Sentiment model on IMDB
 ==================================
-1. Fine tune bert on IMDB dataset using the following comamand
+1. Go to the directory GenderBiasAnalysis/TinyBERT/
+2. Fine tune bert on IMDB dataset using the following comamand
 
 ```bash
 python FT_Bert_Classification.py --data_dir ../data/glue_data/IMDB \
@@ -93,7 +94,7 @@ python FT_Bert_Classification.py --data_dir ../data/glue_data/IMDB \
 
 ``` 
 
-2. Do intermediate distillation of TinyBERT on IMDB using the following command
+3. Do intermediate distillation of TinyBERT on IMDB using the following command
 
 ```bash
 python task_distill.py --teacher_model imdb_output_models \
@@ -108,7 +109,7 @@ python task_distill.py --teacher_model imdb_output_models \
 
 ``` 
 
-3. Do prediction layer distillation of TinyBERT on IMDB using the following command
+4. Do prediction layer distillation of TinyBERT on IMDB using the following command
 
 ```bash
 python task_distill.py --pred_distill  \
@@ -128,7 +129,7 @@ python task_distill.py --pred_distill  \
 HOW TO RUN STEP 2
 =================
 
-Like mentioned at the start, you can run step 2 either using our models directly or by first running Step 1 and re-generating the models. For convinience we are categorzing based on the analysis we did
+Like mentioned at the start, you can run step 2 either using our models directly or by first running Step 1 and re-generating the models. For convinience we are categorizing based on the analysis we did
 
 Unintended Bias
 ==================
@@ -170,6 +171,7 @@ Log Probability Bias Score
 =============================
 Follow steps 1 and 2 mentioned in Unintended Bias section.
 To run log probability bias tests use the following command
+
 ```
 python /path/to/log_bias_analysis.py 
     --eval /path/to/GenderBiasAnalysis/TinyBERT/BEC-Pro/BEC-Pro_EN.tsv 
